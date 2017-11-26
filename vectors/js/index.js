@@ -29,6 +29,7 @@ function getCoinMarketCapPrice() {
             res.setEncoding("utf-8");
             res.on('data', (d) => {
                 bitcoinJSONData = JSON.parse(d)
+                console.log("CoinMarketCap:\n $j", bitcoinJSONData);
                 resolve(bitcoinJSONData[0].price_usd);
             });
         });
@@ -43,6 +44,7 @@ function getCoinBasePrice() {
             res.setEncoding("utf-8");
             res.on('data', (d) => {
                 bitcoinJSONData = JSON.parse(d)
+                console.log("Coinbase:\n $j", bitcoinJSONData);
                 resolve(bitcoinJSONData.data.amount);
             });
         });
