@@ -1,0 +1,32 @@
+{
+  "name": "cryptocurrency-tracker",
+  "version": "0.0.0",
+  "server": false,
+  "private": true,
+  "scripts": {
+    "clean": "rm -rf ./dist",
+    "build": "npm run clean && gulp prod",
+    "postinstall": "npm run build"
+  },
+  "dependencies": {
+    "turbo360": "latest"
+  },
+  "devDependencies": {
+    "express": "latest",
+    "gulp": "latest",
+    "gulp-autoprefixer": "latest",
+    "gulp-concat": "latest",
+    "gulp-less": "latest",
+    "gulp-minify-css": "latest",
+    "gulp-sourcemaps": "latest",
+    "gulp-rename": "latest",
+    "gulp-uglify": "latest",
+    "nodemon": "latest",
+    "rimraf": "latest"
+  },
+  "deploy": [
+    "index.html",
+    "dist"
+  ],
+  "format": "vector"
+}

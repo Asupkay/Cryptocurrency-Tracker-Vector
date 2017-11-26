@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en-US">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <link rel="stylesheet" href="dist/css/style.min.css" type="text/css" />
+</head>
+
+<body class="container">
+	<div class="row">
+
+		<div class="col-md-6 col-md-offset-3" style="text-align:center">
+			<h1>Welcome to Turbo</h1>
+			<hr />
+			<div style="background:#f9f9f9;border:1px solid #ddd;border-radius:3px;padding:12px">
+				You are currently looking at the <strong style="color:red">index.html</strong> file of your project. You mostly likely want to remove the contents of this page and replace it with your project home page. But before you do, use the following tips to get started:
+			</div>
+
+			<h3 style="margin-top:48px">Run Development Server</h3>
+<pre style="text-align:left;margin-top:24px;background:#333;color:#fff">
+<code>$ turbo devserver</code>
+</pre>
+			<p>
+				It is best to develop while running the development server because it mimics Turbo's live and staging environments. After starting the dev server, navigate to <a target="_blank" href="http://localhost:3000">http://localhost:3000</a> to view the project.
+			</p>
+
+			<h3 style="margin-top:48px">Add a Page</h3>
+<pre style="text-align:left;margin-top:24px;background:#333;color:#fff">
+<code>$ turbo page PAGE_NAME</code>
+</pre>
+			<p>
+				This command adds a new html file with the PAGE_NAME specified. You can also do this the old-fasioned way ($ touch PAGE_NAME.html) but by using the Turbo command, the new page will automatically be configured with the Turbo SDK and prepared for deployment.
+			</p>
+
+			<h3 style="margin-top:48px">Build the Project</h3>
+			(In a separate terminal tab)
+<pre style="text-align:left;margin-top:8px;background:#333;color:#fff">
+<code>$ sudo npm i -g gulp<br />$ gulp</code>
+</pre>
+			<p>
+				Turbo projects are automatically configured for minified asset delivery through <a target="_blank" href="http://gulpjs.com/">Gulp</a>. If you already have Gulp installed globally, the first command is not necessary. By running gulp in a separate tab, the project will automatically recompile whenever there are changes to the JS and CSS assets.
+			</p>
+
+
+			<h3 style="margin-top:48px">Sample Project</h3>
+			<p style="margin-bottom:48px">
+				Click <a style="color:red" href="https://storage.turbo360.co/sample-project-t2tluv/sample-project.zip">HERE</a> to download a sample project.
+			</p>
+
+		</div>
+	</div>
+
+
+  <!-- Turbo library imports: jQuery, Turbo CDN, sample app.js -->
+  <script type="text/javascript" src="dist/js/vendor.min.js"></script>
+  <script type="text/javascript" src="https://cdn.turbo360-dev.com/dist/turbo.min.js"></script>
+  <script type="text/javascript" src="dist/app/app.min.js"></script> <!-- Your app specific code -->
+</body>
+</html>
