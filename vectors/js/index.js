@@ -1,24 +1,32 @@
-/* Define your vectors here. To run the samples below,
-   from the root directory run the devserver:
-   $ turbo devserver
-
-   then navigate to: 
-   http://localhost:3000/vectors/sample
-
-   Deploy the vectors by running from root directory:
-   $ turbo vectors
-*/
-
-// import npm packages here:
-// var turbo = require('turbo360')
+var https = require("https");
 
 module.exports = {
-
 	getBitcoinPrices: (req, res) => {
-		res.status(200).json({
-			confirmation: 'success',
-			data: 'This is a sample Vector!'
-		})
+        getCoinMarketCapPrice().then((data) => {
+            res.status(200).json({
+                confirmation: 'success',
+                btcAverage: data
+            });
+        }).catch((error) => {
+            res.status(503).json({
+                confirmation: 'failure',
+                message: error
+            });
+        });   
 	}
 
+}
+
+function getCoinMarketCapPrice() {
+    var promise = new Promise(
+    function(resolve, reject) {
+            https.get('https://api.coinmarketcap.com/v1/ticker/bitcoin/', (res) => {
+            res.setEncoding("utf-8");
+            res.on('data', (d) => {
+                bitcoinJSONData = JSON.parse(d)
+                resolve(bitcoinJSONData[0].price_usd);
+            });
+        });
+    });
+    return promise;
 }
