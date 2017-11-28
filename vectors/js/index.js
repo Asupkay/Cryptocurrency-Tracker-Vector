@@ -1,26 +1,28 @@
 var https = require("https");
 
 module.exports = {
-
-
 	getBitcoinPrices: (req, res) => {
         getCexIOPrice().then((cexIOInfo) => {
-            let bids = {};
-            let asks = {};
+            let exchangeBids = {};
+            let exchangeAsks = {};
 
-            bids.cexio = cexIOInfo.bid;
-            asks.cexio = cexIOInfo.ask;
+            exchangeBids.cexio = cexIOInfo.bid;
+            exchangeAsks.cexio = cexIOInfo.ask;
 
-            let statInfo = resolveInformation(bids, asks);
+            let statInfo = resolveInformation(exchangeBids, exchangeAsks);
 
             res.status(200).json({
                 confirmation: 'success',
-                averageBid: statInfo.averageBid,
-                highestBidEx: statInfo.highestBidExchange,
-                bid: bids,
-                averageAsk: statInfo.averageAsk,
-                lowestAskEx: statInfo.lowestAskExchange,
-                ask: asks
+                bids: {
+                    average: statInfo.averageBid,
+                    highestExchange: statInfo.highestBidExchange,
+                    exchanges: exchangeBids
+                },
+                asks: {
+                    average: statInfo.averageAsk,
+                    lowestExchange: statInfo.lowestAskExchange,
+                    exchanges: exchangeAsks
+                }
             });
         }).catch((error) => {
             res.status(503).json({
