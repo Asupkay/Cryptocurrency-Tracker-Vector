@@ -6,33 +6,42 @@ module.exports = {
             getGdaxPrice().then((gdaxInfo) => {
                 getBitstampPrice().then((bitstampInfo) => {
                     getBitfinexPrice().then((bitfinexInfo) => {
-                    let exchangeBids = {};
-                    let exchangeAsks = {};
+                        getGeminiPrice().then((geminiInfo) => {
+                            let exchangeBids = {};
+                            let exchangeAsks = {};
 
-                    exchangeBids.cexio = cexIOInfo.bid;
-                    exchangeAsks.cexio = cexIOInfo.ask;
-                    exchangeBids.gdax = gdaxInfo.bid;
-                    exchangeAsks.gdax = gdaxInfo.ask;
-                    exchangeBids.bitstamp = bitstampInfo.bid;
-                    exchangeAsks.bitstamp = bitstampInfo.ask;
-                    exchangeBids.bitfinex = bitfinexInfo.bid;
-                    exchangeAsks.bitfinex = bitfinexInfo.ask;
+                            exchangeBids.cexio = cexIOInfo.bid;
+                            exchangeAsks.cexio = cexIOInfo.ask;
+                            exchangeBids.gdax = gdaxInfo.bid;
+                            exchangeAsks.gdax = gdaxInfo.ask;
+                            exchangeBids.bitstamp = bitstampInfo.bid;
+                            exchangeAsks.bitstamp = bitstampInfo.ask;
+                            exchangeBids.bitfinex = bitfinexInfo.bid;
+                            exchangeAsks.bitfinex = bitfinexInfo.ask;
+                            exchangeBids.gemini = geminiInfo.bid;
+                            exchangeAsks.gemini = geminiInfo.ask;
 
-                    let statInfo = resolveInformation(exchangeBids, exchangeAsks);
+                            let statInfo = resolveInformation(exchangeBids, exchangeAsks);
 
-                    res.status(200).json({
-                        confirmation: 'success',
-                        bids: {
-                            average: statInfo.averageBid,
-                            highestExchange: statInfo.highestBidExchange,
-                            exchanges: exchangeBids
-                        },
-                        asks: {
-                            average: statInfo.averageAsk,
-                            lowestExchange: statInfo.lowestAskExchange,
-                            exchanges: exchangeAsks
-                        }
-                    });
+                            res.status(200).json({
+                                confirmation: 'success',
+                                bids: {
+                                    average: statInfo.averageBid,
+                                    highestExchange: statInfo.highestBidExchange,
+                                    exchanges: exchangeBids
+                                },
+                                asks: {
+                                    average: statInfo.averageAsk,
+                                    lowestExchange: statInfo.lowestAskExchange,
+                                    exchanges: exchangeAsks
+                                }
+                            });
+                        }).catch((error) => {
+                            res.status(500).json({
+                                confirmation: 'failure',
+                                message: "Bitfinex error " + error.message
+                            });
+                        });
                     }).catch((error) => {
                         res.status(500).json({
                             confirmation: 'failure',
@@ -170,6 +179,22 @@ function getBitfinexPrice() {
     let promise = new Promise(
     function(resolve, reject) {
             https.get('https://api.bitfinex.com/v1/ticker/BTCUSD', (res) => {
+            res.on('data', (d) => {
+                bitcoinJSONData = JSON.parse(d)
+                console.log("bitfinex.com:\n $j", bitcoinJSONData);
+                bitcoinJSONData.bid = parseFloat(bitcoinJSONData.bid);
+                bitcoinJSONData.ask = parseFloat(bitcoinJSONData.ask);
+                resolve(bitcoinJSONData);
+            });
+        });
+    });
+    return promise;
+}
+
+function getGeminiPrice() {
+    let promise = new Promise(
+    function(resolve, reject) {
+            https.get('https://api.gemini.com/v1/pubticker/btcusd', (res) => {
             res.on('data', (d) => {
                 bitcoinJSONData = JSON.parse(d)
                 console.log("bitfinex.com:\n $j", bitcoinJSONData);
