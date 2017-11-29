@@ -4,6 +4,7 @@ module.exports = {
 	getBitcoinPrices: (req, res) => {
         getCexIOPrice().then((cexIOInfo) => {
             getGdaxPrice().then((gdaxInfo) => {
+                getBitstampPrice().then((bitstampInfo) => {
                 let exchangeBids = {};
                 let exchangeAsks = {};
 
@@ -11,6 +12,8 @@ module.exports = {
                 exchangeAsks.cexio = cexIOInfo.ask;
                 exchangeBids.gdax = gdaxInfo.bid;
                 exchangeAsks.gdax = gdaxInfo.ask;
+                exchangeBids.bitstamp = bitstampInfo.bid;
+                exchangeAsks.bitstamp = bitstampInfo.ask;
 
                 let statInfo = resolveInformation(exchangeBids, exchangeAsks);
 
@@ -27,16 +30,22 @@ module.exports = {
                         exchanges: exchangeAsks
                     }
                 });
+                }).catch((error) => {
+                    res.status(500).json({
+                        confirmation: 'failure',
+                        message: "Bitstamp error " + error.message
+                    });
+                });
             }).catch((error) => {
                 res.status(500).json({
                     confirmation: 'failure',
-                    message: "Gdax error" + error.message
+                    message: "Gdax error " + error.message
                 });
             });
         }).catch((error) => {
             res.status(503).json({
                 confirmation: 'failure',
-                message: "Cexio error" + error.message
+                message: "Cexio error " + error.message
             });
         });   
 	}
@@ -120,6 +129,22 @@ function getGdaxPrice() {
             };
 
             https.get(option, (res) => {
+            res.on('data', (d) => {
+                bitcoinJSONData = JSON.parse(d)
+                console.log("Gdax.com:\n $j", bitcoinJSONData);
+                bitcoinJSONData.bid = parseFloat(bitcoinJSONData.bid);
+                bitcoinJSONData.ask = parseFloat(bitcoinJSONData.ask);
+                resolve(bitcoinJSONData);
+            });
+        });
+    });
+    return promise;
+}
+
+function getBitstampPrice() {
+    let promise = new Promise(
+    function(resolve, reject) {
+            https.get('https://www.bitstamp.net/api/ticker', (res) => {
             res.on('data', (d) => {
                 bitcoinJSONData = JSON.parse(d)
                 console.log("Gdax.com:\n $j", bitcoinJSONData);
