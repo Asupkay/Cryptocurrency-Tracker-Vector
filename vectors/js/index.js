@@ -2,70 +2,47 @@ var https = require("https");
 
 module.exports = {
 	getBitcoinPrices: (req, res) => {
-        getCexIOPrice().then((cexIOInfo) => {
-            getGdaxPrice().then((gdaxInfo) => {
-                getBitstampPrice().then((bitstampInfo) => {
-                    getBitfinexPrice().then((bitfinexInfo) => {
-                        getGeminiPrice().then((geminiInfo) => {
-                            let exchangeBids = {};
-                            let exchangeAsks = {};
 
-                            exchangeBids.cexio = cexIOInfo.bid;
-                            exchangeAsks.cexio = cexIOInfo.ask;
-                            exchangeBids.gdax = gdaxInfo.bid;
-                            exchangeAsks.gdax = gdaxInfo.ask;
-                            exchangeBids.bitstamp = bitstampInfo.bid;
-                            exchangeAsks.bitstamp = bitstampInfo.ask;
-                            exchangeBids.bitfinex = bitfinexInfo.bid;
-                            exchangeAsks.bitfinex = bitfinexInfo.ask;
-                            exchangeBids.gemini = geminiInfo.bid;
-                            exchangeAsks.gemini = geminiInfo.ask;
+        let time = new Date();
+        let promises = [getCexPrice(), getGdaxPrice(), getBitstampPrice(), getBitfinexPrice(), getGeminiPrice()];
+  
+        Promise.all(promises).then(values => {
+            let exchangeBids = {};
+            let exchangeAsks = {};
 
-                            let statInfo = resolveInformation(exchangeBids, exchangeAsks);
+            exchangeBids.cex = values[0].bid;
+            exchangeAsks.cex = values[0].ask;
+            exchangeBids.gdax = values[1].bid;
+            exchangeAsks.gdax = values[1].ask;
+            exchangeBids.bitstamp = values[2].bid;
+            exchangeAsks.bitstamp = values[2].ask;
+            exchangeBids.bitfinex = values[3].bid;
+            exchangeAsks.bitfinex = values[3].ask;
+            exchangeBids.gemini = values[4].bid;
+            exchangeAsks.gemini = values[4].ask;
 
-                            res.status(200).json({
-                                confirmation: 'success',
-                                bids: {
-                                    average: statInfo.averageBid,
-                                    highestExchange: statInfo.highestBidExchange,
-                                    exchanges: exchangeBids
-                                },
-                                asks: {
-                                    average: statInfo.averageAsk,
-                                    lowestExchange: statInfo.lowestAskExchange,
-                                    exchanges: exchangeAsks
-                                }
-                            });
-                        }).catch((error) => {
-                            res.status(500).json({
-                                confirmation: 'failure',
-                                message: "Bitfinex error " + error.message
-                            });
-                        });
-                    }).catch((error) => {
-                        res.status(500).json({
-                            confirmation: 'failure',
-                            message: "Bitfinex error " + error.message
-                        });
-                    });
-                }).catch((error) => {
-                    res.status(500).json({
-                        confirmation: 'failure',
-                        message: "Bitstamp error " + error.message
-                    });
-                });
-            }).catch((error) => {
-                res.status(500).json({
-                    confirmation: 'failure',
-                    message: "Gdax error " + error.message
-                });
+            let statInfo = resolveInformation(exchangeBids, exchangeAsks);
+
+            res.status(200).json({
+                confirmation: 'success',
+                time: time,
+                bids: {
+                    average: statInfo.averageBid,
+                    highestExchange: statInfo.highestBidExchange,
+                    exchanges: exchangeBids
+                },
+                asks: {
+                    average: statInfo.averageAsk,
+                    lowestExchange: statInfo.lowestAskExchange,
+                    exchanges: exchangeAsks
+                }
             });
         }).catch((error) => {
-            res.status(503).json({
+            res.status(500).json({
                 confirmation: 'failure',
-                message: "Cexio error " + error.message
+                error: error.message
             });
-        });   
+        });
 	}
 
 }
@@ -120,13 +97,12 @@ function resolveInformation(bids, asks) {
     return returnInformation;
 }
 
-function getCexIOPrice() {
+function getCexPrice() {
     let promise = new Promise(
     function(resolve, reject) {
-            https.get('https://cex.io/api/ticker/BTC/USD', (res) => {
+        https.get('https://cex.io/api/ticker/BTC/USD', (res) => {
             res.on('data', (d) => {
                 bitcoinJSONData = JSON.parse(d)
-                console.log("Cex.io:\n $j", bitcoinJSONData);
                 resolve(bitcoinJSONData);
             });
         });
@@ -149,7 +125,6 @@ function getGdaxPrice() {
             https.get(option, (res) => {
             res.on('data', (d) => {
                 bitcoinJSONData = JSON.parse(d)
-                console.log("Gdax.com:\n $j", bitcoinJSONData);
                 bitcoinJSONData.bid = parseFloat(bitcoinJSONData.bid);
                 bitcoinJSONData.ask = parseFloat(bitcoinJSONData.ask);
                 resolve(bitcoinJSONData);
@@ -165,7 +140,6 @@ function getBitstampPrice() {
             https.get('https://www.bitstamp.net/api/ticker', (res) => {
             res.on('data', (d) => {
                 bitcoinJSONData = JSON.parse(d)
-                console.log("Gdax.com:\n $j", bitcoinJSONData);
                 bitcoinJSONData.bid = parseFloat(bitcoinJSONData.bid);
                 bitcoinJSONData.ask = parseFloat(bitcoinJSONData.ask);
                 resolve(bitcoinJSONData);
@@ -181,7 +155,6 @@ function getBitfinexPrice() {
             https.get('https://api.bitfinex.com/v1/ticker/BTCUSD', (res) => {
             res.on('data', (d) => {
                 bitcoinJSONData = JSON.parse(d)
-                console.log("bitfinex.com:\n $j", bitcoinJSONData);
                 bitcoinJSONData.bid = parseFloat(bitcoinJSONData.bid);
                 bitcoinJSONData.ask = parseFloat(bitcoinJSONData.ask);
                 resolve(bitcoinJSONData);
@@ -197,7 +170,6 @@ function getGeminiPrice() {
             https.get('https://api.gemini.com/v1/pubticker/btcusd', (res) => {
             res.on('data', (d) => {
                 bitcoinJSONData = JSON.parse(d)
-                console.log("bitfinex.com:\n $j", bitcoinJSONData);
                 bitcoinJSONData.bid = parseFloat(bitcoinJSONData.bid);
                 bitcoinJSONData.ask = parseFloat(bitcoinJSONData.ask);
                 resolve(bitcoinJSONData);
