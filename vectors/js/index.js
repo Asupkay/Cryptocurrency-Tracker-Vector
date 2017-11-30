@@ -1,7 +1,11 @@
-var https = require("https");
+const https = require("https");
+const url = require('url');
+
 
 module.exports = {
 	getBitcoinPrices: (req, res) => {
+        //let URL = url.parse('http://www.google.com');
+        //console.log(URL);
 
         let time = new Date();
         let promises = [getExchangePrice('cex.io', '/api/ticker/BTC/USD'), getGdaxPrice(), getBitstampPrice(), getBitfinexPrice(), getGeminiPrice()];
