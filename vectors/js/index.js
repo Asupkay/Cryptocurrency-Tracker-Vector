@@ -4,12 +4,13 @@ module.exports = {
 	getBitcoinPrices: (req, res) => {
 
         let time = new Date();
-        let promises = [getCexPrice(), getGdaxPrice(), getBitstampPrice(), getBitfinexPrice(), getGeminiPrice()];
+        let promises = [getExchangePrice('cex.io', '/api/ticker/BTC/USD'), getGdaxPrice(), getBitstampPrice(), getBitfinexPrice(), getGeminiPrice()];
   
         Promise.all(promises).then(values => {
             let exchangeBids = {};
             let exchangeAsks = {};
 
+            console.log(values[0]);
             exchangeBids.cex = values[0].bid;
             exchangeAsks.cex = values[0].ask;
             exchangeBids.gdax = values[1].bid;
@@ -95,6 +96,30 @@ function resolveInformation(bids, asks) {
     }
 
     return returnInformation;
+}
+
+function getExchangePrice(hostname, path) {
+    let promise = new Promise(
+    function(resolve, reject) {
+            
+            const option = {
+                hostname: hostname,
+                path: path,
+                headers: {
+                    'User-Agent': 'Node-JS Exchange Checker'
+                }
+            };
+
+            https.get(option, (res) => {
+            res.on('data', (d) => {
+                bitcoinJSONData = JSON.parse(d)
+                bitcoinJSONData.bid = parseFloat(bitcoinJSONData.bid);
+                bitcoinJSONData.ask = parseFloat(bitcoinJSONData.ask);
+                resolve(bitcoinJSONData);
+            });
+        });
+    });
+    return promise;
 }
 
 function getCexPrice() {
