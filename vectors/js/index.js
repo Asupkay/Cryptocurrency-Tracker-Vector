@@ -1,16 +1,15 @@
 const https = require("https");
 const url = require('url');
 
-let unparsedURLs = ['https://cex.io/api/ticker/BTC/USD', 'https://api.gdax.com/products/BTC-USD/ticker', 'https://www.bitstamp.net/api/ticker', 'https://api.bitfinex.com/v1/ticker/BTCUSD', 'https://api.gemini.com/v1/pubticker/btcusd']
-
+let unparsedURLs = [['https://cex.io/api/ticker/BTC/USD'], ['https://api.gdax.com/products/BTC-USD/ticker'], ['https://www.bitstamp.net/api/ticker'], ['https://api.bitfinex.com/v1/ticker/BTCUSD'], ['https://api.gemini.com/v1/pubticker/btcusd'], ['https://api.kraken.com/0/public/Ticker?pair=XXBTZUSD', 'result.XXBTZUSD.b[0]', 'result.XXBTZUSD.a[0]'], ['https://api.lakebtc.com/api_v2/ticker/', 'btcusd.bid', 'btcusd.ask'], ['https://spotusd-data.btcc.com/data/pro/ticker?symbol=BTCUSD', "ticker.BidPrice", "ticker.AskPrice"], ['https://api.itbit.com/v1/markets/XBTUSD/ticker']]
 
 module.exports = {
 	getBitcoinPrices: (req, res) => {
         let promises = [];
         
         unparsedURLs.map((item) => {
-            let URL = url.parse(item)
-            let promise = getExchangePrice(URL);
+            let URL = url.parse(item[0])
+            let promise = getExchangePrice(URL, item[1], item[2]);
             promises.push(promise);
         });
             
@@ -30,6 +29,18 @@ module.exports = {
             exchangeAsks.bitfinex = values[3].ask;
             exchangeBids.gemini = values[4].bid;
             exchangeAsks.gemini = values[4].ask;
+
+            exchangeBids.kraken = parseFloat(values[5].result.XXBTZUSD.b[0]);
+            exchangeAsks.kraken = parseFloat(values[5].result.XXBTZUSD.a[0]);
+
+            exchangeBids.lakebtc = parseFloat(values[6].btcusd.bid);
+            exchangeAsks.lakebtc = parseFloat(values[6].btcusd.ask);
+
+            exchangeBids.btcc = values[7].ticker.BidPrice;
+            exchangeAsks.btcc = values[7].ticker.AskPrice;
+
+            exchangeBids.itbit = values[8].bid;
+            exchangeAsks.itbit = values[8].ask;
 
             let statInfo = resolveInformation(exchangeBids, exchangeAsks);
 
@@ -107,7 +118,7 @@ function resolveInformation(bids, asks) {
     return returnInformation;
 }
 
-function getExchangePrice(url) {
+function getExchangePrice(url, pathToBid, pathToAsk) {
     let promise = new Promise(
     function(resolve, reject) {
             
@@ -122,8 +133,14 @@ function getExchangePrice(url) {
             https.get(option, (res) => {
             res.on('data', (d) => {
                 bitcoinJSONData = JSON.parse(d)
-                bitcoinJSONData.bid = parseFloat(bitcoinJSONData.bid);
-                bitcoinJSONData.ask = parseFloat(bitcoinJSONData.ask);
+                if(pathToBid == null && pathToAsk == null) {
+                    bitcoinJSONData.bid = parseFloat(bitcoinJSONData.bid);
+                    bitcoinJSONData.ask = parseFloat(bitcoinJSONData.ask);
+                } else {
+                    bitcoinJSONData[pathToBid] = parseFloat(bitcoinJSONData[pathToBid]);
+                    bitcoinJSONData[pathToAsk] = parseFloat(bitcoinJSONData[pathToAsk]);
+                }
+                console.log(bitcoinJSONData);
                 resolve(bitcoinJSONData);
             });
         });
