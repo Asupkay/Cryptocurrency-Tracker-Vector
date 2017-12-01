@@ -20,7 +20,6 @@ module.exports = {
             let exchangeBids = {};
             let exchangeAsks = {};
 
-            console.log(values[0]);
             exchangeBids.cex = values[0].bid;
             exchangeAsks.cex = values[0].ask;
             exchangeBids.gdax = values[1].bid;
@@ -121,88 +120,6 @@ function getExchangePrice(url) {
             };
 
             https.get(option, (res) => {
-            res.on('data', (d) => {
-                bitcoinJSONData = JSON.parse(d)
-                bitcoinJSONData.bid = parseFloat(bitcoinJSONData.bid);
-                bitcoinJSONData.ask = parseFloat(bitcoinJSONData.ask);
-                resolve(bitcoinJSONData);
-            });
-        });
-    });
-    return promise;
-}
-
-function getCexPrice() {
-    let promise = new Promise(
-    function(resolve, reject) {
-        https.get('https://cex.io/api/ticker/BTC/USD', (res) => {
-            res.on('data', (d) => {
-                bitcoinJSONData = JSON.parse(d)
-                resolve(bitcoinJSONData);
-            });
-        });
-    });
-    return promise;
-}
-
-function getGdaxPrice() {
-    let promise = new Promise(
-    function(resolve, reject) {
-            
-            const option = {
-                hostname: 'api.gdax.com',
-                path: '/products/BTC-USD/ticker',
-                headers: {
-                    'User-Agent': 'Node-JS Exchange Checker'
-                }
-            };
-
-            https.get(option, (res) => {
-            res.on('data', (d) => {
-                bitcoinJSONData = JSON.parse(d)
-                bitcoinJSONData.bid = parseFloat(bitcoinJSONData.bid);
-                bitcoinJSONData.ask = parseFloat(bitcoinJSONData.ask);
-                resolve(bitcoinJSONData);
-            });
-        });
-    });
-    return promise;
-}
-
-function getBitstampPrice() {
-    let promise = new Promise(
-    function(resolve, reject) {
-            https.get('https://www.bitstamp.net/api/ticker', (res) => {
-            res.on('data', (d) => {
-                bitcoinJSONData = JSON.parse(d)
-                bitcoinJSONData.bid = parseFloat(bitcoinJSONData.bid);
-                bitcoinJSONData.ask = parseFloat(bitcoinJSONData.ask);
-                resolve(bitcoinJSONData);
-            });
-        });
-    });
-    return promise;
-}
-
-function getBitfinexPrice() {
-    let promise = new Promise(
-    function(resolve, reject) {
-            https.get('https://api.bitfinex.com/v1/ticker/BTCUSD', (res) => {
-            res.on('data', (d) => {
-                bitcoinJSONData = JSON.parse(d)
-                bitcoinJSONData.bid = parseFloat(bitcoinJSONData.bid);
-                bitcoinJSONData.ask = parseFloat(bitcoinJSONData.ask);
-                resolve(bitcoinJSONData);
-            });
-        });
-    });
-    return promise;
-}
-
-function getGeminiPrice() {
-    let promise = new Promise(
-    function(resolve, reject) {
-            https.get('https://api.gemini.com/v1/pubticker/btcusd', (res) => {
             res.on('data', (d) => {
                 bitcoinJSONData = JSON.parse(d)
                 bitcoinJSONData.bid = parseFloat(bitcoinJSONData.bid);
