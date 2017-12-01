@@ -1,14 +1,20 @@
 const https = require("https");
 const url = require('url');
 
+let unparsedURLs = ['https://cex.io/api/ticker/BTC/USD', 'https://api.gdax.com/products/BTC-USD/ticker', 'https://www.bitstamp.net/api/ticker', 'https://api.bitfinex.com/v1/ticker/BTCUSD', 'https://api.gemini.com/v1/pubticker/btcusd']
+
 
 module.exports = {
 	getBitcoinPrices: (req, res) => {
-        //let URL = url.parse('http://www.google.com');
-        //console.log(URL);
-
+        let promises = [];
+        
+        unparsedURLs.map((item) => {
+            let URL = url.parse(item)
+            let promise = getExchangePrice(URL);
+            promises.push(promise);
+        });
+            
         let time = new Date();
-        let promises = [getExchangePrice('cex.io', '/api/ticker/BTC/USD'), getGdaxPrice(), getBitstampPrice(), getBitfinexPrice(), getGeminiPrice()];
   
         Promise.all(promises).then(values => {
             let exchangeBids = {};
@@ -102,13 +108,13 @@ function resolveInformation(bids, asks) {
     return returnInformation;
 }
 
-function getExchangePrice(hostname, path) {
+function getExchangePrice(url) {
     let promise = new Promise(
     function(resolve, reject) {
             
             const option = {
-                hostname: hostname,
-                path: path,
+                hostname: url.host,
+                path: url.path,
                 headers: {
                     'User-Agent': 'Node-JS Exchange Checker'
                 }
