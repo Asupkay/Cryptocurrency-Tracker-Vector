@@ -1,7 +1,9 @@
 const https = require("https");
 const url = require('url');
 
-let unparsedURLs = [['https://cex.io/api/ticker/BTC/USD'], ['https://api.gdax.com/products/BTC-USD/ticker'], ['https://www.bitstamp.net/api/ticker'], ['https://api.bitfinex.com/v1/ticker/BTCUSD'], ['https://api.gemini.com/v1/pubticker/btcusd'], ['https://api.kraken.com/0/public/Ticker?pair=XXBTZUSD', 'result.XXBTZUSD.b[0]', 'result.XXBTZUSD.a[0]'], ['https://api.lakebtc.com/api_v2/ticker/', 'btcusd.bid', 'btcusd.ask'], ['https://spotusd-data.btcc.com/data/pro/ticker?symbol=BTCUSD', "ticker.BidPrice", "ticker.AskPrice"], ['https://api.itbit.com/v1/markets/XBTUSD/ticker']]
+//https://stackoverflow.com/questions/18936915/dynamically-set-property-of-nested-object
+
+let unparsedURLs = [['https://cex.io/api/ticker/BTC/USD'], ['https://api.gdax.com/products/BTC-USD/ticker'], ['https://www.bitstamp.net/api/ticker'], ['https://api.bitfinex.com/v1/ticker/BTCUSD'], ['https://api.gemini.com/v1/pubticker/btcusd'], ['https://api.kraken.com/0/public/Ticker?pair=XXBTZUSD', 'result.XXBTZUSD.b', 'result.XXBTZUSD.a', 0], ['https://api.lakebtc.com/api_v2/ticker/', 'btcusd.bid', 'btcusd.ask'], ['https://spotusd-data.btcc.com/data/pro/ticker?symbol=BTCUSD', "ticker.BidPrice", "ticker.AskPrice"], ['https://api.itbit.com/v1/markets/XBTUSD/ticker']]
 
 module.exports = {
 	getBitcoinPrices: (req, res) => {
@@ -9,7 +11,7 @@ module.exports = {
         
         unparsedURLs.map((item) => {
             let URL = url.parse(item[0])
-            let promise = getExchangePrice(URL, item[1], item[2]);
+            let promise = getExchangePrice(URL, item[1], item[2], item[3]);
             promises.push(promise);
         });
             
@@ -30,14 +32,14 @@ module.exports = {
             exchangeBids.gemini = values[4].bid;
             exchangeAsks.gemini = values[4].ask;
 
-            exchangeBids.kraken = parseFloat(values[5].result.XXBTZUSD.b[0]);
-            exchangeAsks.kraken = parseFloat(values[5].result.XXBTZUSD.a[0]);
+            exchangeBids.kraken = values[5].bid;
+            exchangeAsks.kraken = values[5].ask;
 
-            exchangeBids.lakebtc = parseFloat(values[6].btcusd.bid);
-            exchangeAsks.lakebtc = parseFloat(values[6].btcusd.ask);
+            exchangeBids.lakebtc = values[6].bid;
+            exchangeAsks.lakebtc = values[6].ask;
 
-            exchangeBids.btcc = values[7].ticker.BidPrice;
-            exchangeAsks.btcc = values[7].ticker.AskPrice;
+            exchangeBids.btcc = values[7].bid;
+            exchangeAsks.btcc = values[7].ask;
 
             exchangeBids.itbit = values[8].bid;
             exchangeAsks.itbit = values[8].ask;
@@ -83,25 +85,29 @@ function resolveInformation(bids, asks) {
    
 
     for(let key in bids) {
-        amountOfExchanges++;
         cBid = bids[key];
+        if(cBid != "error") {
+            amountOfExchanges++;
 
-        averageBid += cBid;
+            averageBid += cBid;
 
-        if(cBid > highestBidAmount) {
-            highestBidExchange = key;
-            highestBidAmount = cBid;
+            if(cBid > highestBidAmount) {
+                highestBidExchange = key;
+                highestBidAmount = cBid;
+            }
         }
     }
 
     for(let key in asks) {
         cAsk = asks[key];
+        
+        if(cAsk != "error") {
+            averageAsk += asks[key]
 
-        averageAsk += asks[key]
-
-        if(cAsk < lowestAskAmount) {
-            lowestAskExchange = key;
-            lowestAskAmount = cAsk;
+            if(cAsk < lowestAskAmount) {
+                lowestAskExchange = key;
+                lowestAskAmount = cAsk;
+            }
         }
     }
 
@@ -118,7 +124,7 @@ function resolveInformation(bids, asks) {
     return returnInformation;
 }
 
-function getExchangePrice(url, pathToBid, pathToAsk) {
+function getExchangePrice(url, pathToBid, pathToAsk, position) {
     let promise = new Promise(
     function(resolve, reject) {
             
@@ -133,15 +139,46 @@ function getExchangePrice(url, pathToBid, pathToAsk) {
             https.get(option, (res) => {
             res.on('data', (d) => {
                 bitcoinJSONData = JSON.parse(d)
+                let returnedData = {};
                 if(pathToBid == null && pathToAsk == null) {
-                    bitcoinJSONData.bid = parseFloat(bitcoinJSONData.bid);
-                    bitcoinJSONData.ask = parseFloat(bitcoinJSONData.ask);
+                    if(!bitcoinJSONData.bid) {
+                        returnedData.bid = "error";
+                    }
+                    if(!bitcoinJSONData.ask) {
+                        returnedData.ask = "error";
+                    }
+                
+                    returnedData.bid = parseFloat(bitcoinJSONData.bid);
+                    returnedData.ask = parseFloat(bitcoinJSONData.ask);
                 } else {
-                    bitcoinJSONData[pathToBid] = parseFloat(bitcoinJSONData[pathToBid]);
-                    bitcoinJSONData[pathToAsk] = parseFloat(bitcoinJSONData[pathToAsk]);
+                    pathToBid = pathToBid.split(".");
+                    pathToAsk = pathToAsk.split(".");
+
+                    let bidPrice = bitcoinJSONData;
+                    pathToBid.map((item) => {
+                        bidPrice = bidPrice[item];
+                    });
+                    
+                    let askPrice = bitcoinJSONData;
+                    pathToAsk.map((item) => {
+                        askPrice = askPrice[item];
+                    });
+
+                    if(!bidPrice || !askPrice) {
+                        returnedData.bid = "error";
+                        returnedData.ask = "error";
+                    } else {
+                        if(position) {
+                            returnedData.bid = parseFloat(bidPrice[position]);
+                            returnedData.ask = parseFloat(askPrice[position]);
+                        } else {
+                            returnedData.bid = parseFloat(bidPrice);
+                            returnedData.ask = parseFloat(askPrice);
+                        }
+                    }
                 }
-                console.log(bitcoinJSONData);
-                resolve(bitcoinJSONData);
+                console.log(returnedData);
+                resolve(returnedData);
             });
         });
     });
