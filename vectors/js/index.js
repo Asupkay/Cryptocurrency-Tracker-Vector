@@ -128,15 +128,15 @@ function getExchangePrice(url, pathToBid, pathToAsk, position) {
     let promise = new Promise(
     function(resolve, reject) {
             
-            const option = {
-                hostname: url.host,
-                path: url.path,
-                headers: {
-                    'User-Agent': 'Node-JS Exchange Checker'
-                }
-            };
+        const option = {
+            hostname: url.host,
+            path: url.path,
+            headers: {
+                'User-Agent': 'Node-JS Exchange Checker'
+            }
+        };
 
-            https.get(option, (res) => {
+        https.get(option, (res) => {
             res.on('data', (d) => {
                 console.log(url);
                 bitcoinJSONData = JSON.parse(d)
@@ -193,6 +193,11 @@ function getExchangePrice(url, pathToBid, pathToAsk, position) {
                 console.log(returnedData);
                 resolve(returnedData);
             });
+        }).setTimeout(2000, () => {
+            let returnedData = {};
+            returnedData.bid = "request timed out";
+            returnedData.ask = "request timed out";
+            resolve(returnedData);
         });
     });
     return promise;
