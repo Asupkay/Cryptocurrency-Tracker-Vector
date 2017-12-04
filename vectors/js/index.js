@@ -86,7 +86,7 @@ function resolveInformation(bids, asks) {
 
     for(let key in bids) {
         cBid = bids[key];
-        if(cBid != "error") {
+        if(typeof cBid === 'number') {
             amountOfExchanges++;
 
             averageBid += cBid;
@@ -101,7 +101,7 @@ function resolveInformation(bids, asks) {
     for(let key in asks) {
         cAsk = asks[key];
         
-        if(cAsk != "error") {
+        if(typeof cAsk === 'number') {
             averageAsk += asks[key]
 
             if(cAsk < lowestAskAmount) {
