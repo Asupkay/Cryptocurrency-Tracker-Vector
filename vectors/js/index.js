@@ -138,6 +138,7 @@ function getExchangePrice(url, pathToBid, pathToAsk, position) {
 
             https.get(option, (res) => {
             res.on('data', (d) => {
+                console.log(url);
                 bitcoinJSONData = JSON.parse(d)
                 let returnedData = {};
                 if(pathToBid == null && pathToAsk == null) {
@@ -155,16 +156,28 @@ function getExchangePrice(url, pathToBid, pathToAsk, position) {
                     pathToAsk = pathToAsk.split(".");
 
                     let bidPrice = bitcoinJSONData;
+                    let error = false;
                     pathToBid.map((item) => {
-                        bidPrice = bidPrice[item];
+                        if(!error) {
+                            bidPrice = bidPrice[item];
+                            if(!bidPrice) {
+                                error = true;
+                            }
+                        }
                     });
-                    
+                   
+                     
                     let askPrice = bitcoinJSONData;
                     pathToAsk.map((item) => {
-                        askPrice = askPrice[item];
+                        if(!error) { 
+                            askPrice = askPrice[item];
+                            if(!askPrice) {
+                                error = true;
+                            }
+                        }
                     });
 
-                    if(!bidPrice || !askPrice) {
+                    if(error) {
                         returnedData.bid = "error";
                         returnedData.ask = "error";
                     } else {
