@@ -154,14 +154,11 @@ function getExchangePrice(url, pathToBid, pathToAsk, position, timeout) {
                 }
             });
             res.on('end', () => {
-                console.log(url);
-
                 let returnedData = {};
                 
                 try {
                     bitcoinJSONData = JSON.parse(fulldata)
                 } catch (error) {
-                    console.log(error);
                     returnedData.bid = "parsing error";
                     returnedData.ask = "parsing error";
                 }
@@ -215,7 +212,6 @@ function getExchangePrice(url, pathToBid, pathToAsk, position, timeout) {
                         }
                     }
                 }
-                console.log(returnedData);
                 resolve(returnedData);
             });
         });
