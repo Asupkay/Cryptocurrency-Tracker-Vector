@@ -28,5 +28,6 @@
     "index.html",
     "dist"
   ],
-  "format": "vector"
+  "format": "vector",
+  "app": "5a275c98c2491b00145351ce"
 }

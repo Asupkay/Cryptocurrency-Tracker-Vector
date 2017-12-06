@@ -9,8 +9,14 @@ module.exports = {
        
         let timeout = req.query.timeout;
         if(timeout) {
-            console.log(timeout);
             timeout = parseInt(req.query.timeout);
+            if(timeout <= 0) {
+                res.status(500).json({
+                    confirmation: 'failure',
+                    message: 'Timeout must be greater than 0'
+                });
+                return;
+            }   
         }
         
         unparsedURLs.map((item) => {
@@ -150,14 +156,16 @@ function getExchangePrice(url, pathToBid, pathToAsk, position, timeout) {
             res.on('end', () => {
                 console.log(url);
 
+                let returnedData = {};
+                
                 try {
                     bitcoinJSONData = JSON.parse(fulldata)
                 } catch (error) {
+                    console.log(error);
                     returnedData.bid = "parsing error";
                     returnedData.ask = "parsing error";
                 }
 
-                let returnedData = {};
                 if(pathToBid == null && pathToAsk == null) {
                     if(!bitcoinJSONData.bid) {
                         returnedData.bid = "bid find error (API probably returned error)";
