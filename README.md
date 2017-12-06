@@ -43,21 +43,21 @@ https://production.turbo360-vector.com/cryptocurrency-tracker-vector-caqpsd/getB
 Note: Most exchanges will reply within 2500 milliseconds, some like lakebtc are may take longer
 
 ### List of Exchanges
-    1. Cex.io
-    2. GDAX.com
-    3. bitstamp.net
-    4. bitfinex.com
-    5. gemini.com
-    6. kraken.com
-    7. lakebtc.com
-    8. btcc.com
-    9. itbit.com
-    10. exmo.com
-   
+1. Cex.io
+2. GDAX.com
+3. bitstamp.net
+4. bitfinex.com
+5. gemini.com
+6. kraken.com
+7. lakebtc.com
+8. btcc.com
+9. itbit.com
+10. exmo.com
+
 ### Notes on Errors
-    * "parsing error": This will be returned on the exchange's bid place if the GET request returns something other than JSON. This may mean the exchange is down right now and experiencing an error.
-    * "bid find error" & "ask find error": This means the website returned something other than what was expected. This may mean that the API is under maintenance
-    * "request timed out": This means that the website did not return a response before your timeout period expired  
+* "parsing error": This will be returned on the exchange's bid place if the GET request returns something other than JSON. This may mean the exchange is down right now and experiencing an error.
+* "bid find error" & "ask find error": This means the website returned something other than what was expected. This may mean that the API is under maintenance
+* "request timed out": This means that the website did not return a response before your timeout period expired  
 
 ### Example 1 - Default GET Request
 
@@ -74,6 +74,49 @@ https://production.turbo360-vector.com/cryptocurrency-tracker-vector-caqpsd/getB
 
 The JSON payload will contain the following information:
 
+Example JSON payload:
+
+```json
+{
+    "confirmation": "success",
+    "time": "2017-12-06T22:41:47.090Z",
+    "bids": {
+        "average": 13667.182999999999,
+        "highestExchange": "cex",
+        "exchanges": {
+            "cex": 14540,
+            "gdax": 13925.24,
+            "bitstamp": 13521,
+            "bitfinex": 13390,
+            "gemini": 13633.92,
+            "kraken": 13700,
+            "lakebtc": 13422.28,
+            "btcc": 13100,
+            "itbit": 13492.73,
+            "exmo": 13946.66
+        }
+    },
+    "asks": {
+        "average": 13730.544,
+        "lowestExchange": "bitfinex",
+        "exchanges": {
+            "cex": 14595.06,
+            "gdax": 13950,
+            "bitstamp": 13530,
+            "bitfinex": 13398,
+            "gemini": 13633.93,
+            "kraken": 13758.5,
+            "lakebtc": 13425.06,
+            "btcc": 13496,
+            "itbit": 13571.99,
+            "exmo": 13946.9
+        }
+    }
+}
+```
+
+Overview of JSON structure:
+
 | Overview     |                                                                                              |
 |--------------|----------------------------------------------------------------------------------------------|
 | confirmation | Will return success if everything succeeded or failure if there was an error                 |
@@ -81,8 +124,24 @@ The JSON payload will contain the following information:
 | bids         | This contains information on bids across exchanges                                           |
 | asks         | This contains information on asks across exchanges                                           |
 
-| bids             |                                                                        |
-|------------------|------------------------------------------------------------------------|
-| average          | The average bid across all exchanges                                   |
-| highest exchange | This will be the name of the exchange with the highest bid             |
-| exchanges        | This is a list of exchanges with each of their exchange rate (BTC/USD) |
+How `bids` are formatted:
+
+| bids             |                                                                            |
+|------------------|----------------------------------------------------------------------------|
+| average          | The average bid across all exchanges                                       |
+| highest exchange | This will be the name of the exchange with the highest bid                 |
+| exchanges        | This is a list of exchanges with each of their highest bid price (BTC/USD) |
+
+How `asks` are formatted:
+
+| asks             |                                                                           |
+|------------------|---------------------------------------------------------------------------|
+| average          | The average ask across all exchanges                                      |
+| lowest exchange  | This will be the name of the exchange with the lowest ask                 |
+| exchanges        | This is a list of exchanges with each of their lowest ask price (BTC/USD) |
+
+How `exchanges` are formatted
+
+| exchanges     |                                                         |
+|---------------|---------------------------------------------------------|
+| exchange name | Exchange name with the exchange bid or ask price in USD |
