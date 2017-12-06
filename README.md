@@ -55,9 +55,9 @@ Note: Most exchanges will reply within 2500 milliseconds, some like lakebtc are 
 10. exmo.com
 
 ### Notes on Errors
-* "parsing error": This will be returned on the exchange's bid place if the GET request returns something other than JSON. This may mean the exchange is down right now and experiencing an error.
-* "bid find error" & "ask find error": This means the website returned something other than what was expected. This may mean that the API is under maintenance
-* "request timed out": This means that the website did not return a response before your timeout period expired  
+* `parsing error`: This will be returned on the exchange's bid place if the GET request returns something other than JSON. This may mean the exchange is down right now and experiencing an error.
+* `bid find error` & `ask find error`: This means the website returned something other than what was expected. This may mean that the API is under maintenance
+* `request timed out`: This means that the website did not return a response before your timeout period expired  
 
 ### Example 1 - Default GET Request
 
@@ -70,11 +70,30 @@ Hit the deployment link:
 https://production.turbo360-vector.com/cryptocurrency-tracker-vector-caqpsd/getBitcoinPrices
 ```
 
+### Example 2 - GET Request With Timeout
+
+#### Step 1 
+
+Choose a timeout time measured in milliseconds more than 0 I use around 2500 as that will get all exchanges besides 1 usually (lakebtc). 1000 milliseconds = 1 second
+
+### Step 2
+
+Concatenate the timeout onto the end of the string as a query parameter.
+
+Example:
+```
+https://production.turbo360-vector.com/cryptocurrency-tracker-vector-caqpsd/getBitcoinPrices?timeout=2500
+```
+
+### Step 3
+
+Hit the URL you created in the previous step and you should be returned a JSON object.
+
 ### JSON Payload
 
 The JSON payload will contain the following information:
 
-Example JSON payload:
+#### Example JSON payload:
 
 ```json
 {
@@ -115,7 +134,7 @@ Example JSON payload:
 }
 ```
 
-Overview of JSON structure:
+#### Overview of JSON structure:
 
 | Overview     |                                                                                              |
 |--------------|----------------------------------------------------------------------------------------------|
@@ -124,7 +143,9 @@ Overview of JSON structure:
 | bids         | This contains information on bids across exchanges                                           |
 | asks         | This contains information on asks across exchanges                                           |
 
-How `bids` are formatted:
+Note: On confirmation failure there will be a message attribute that will contain more information on why it failed.
+
+#### How `bids` are formatted:
 
 | bids             |                                                                            |
 |------------------|----------------------------------------------------------------------------|
@@ -132,7 +153,7 @@ How `bids` are formatted:
 | highest exchange | This will be the name of the exchange with the highest bid                 |
 | exchanges        | This is a list of exchanges with each of their highest bid price (BTC/USD) |
 
-How `asks` are formatted:
+#### How `asks` are formatted:
 
 | asks             |                                                                           |
 |------------------|---------------------------------------------------------------------------|
@@ -140,8 +161,12 @@ How `asks` are formatted:
 | lowest exchange  | This will be the name of the exchange with the lowest ask                 |
 | exchanges        | This is a list of exchanges with each of their lowest ask price (BTC/USD) |
 
-How `exchanges` are formatted
+#### How `exchanges` are formatted
 
 | exchanges     |                                                         |
 |---------------|---------------------------------------------------------|
 | exchange name | Exchange name with the exchange bid or ask price in USD |
+
+### Recommended Use
+
+Use this vector to track bitcoin bid and ask prices across exchanges. Good examples of uses of this vector are charts of Bitcoin prices over time, and arbitrage bots.
