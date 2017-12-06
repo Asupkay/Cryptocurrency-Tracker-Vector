@@ -1,17 +1,21 @@
 const https = require("https");
 const url = require('url');
 
-//https://stackoverflow.com/questions/18936915/dynamically-set-property-of-nested-object
-
-let unparsedURLs = [['https://cex.io/api/ticker/BTC/USD'], ['https://api.gdax.com/products/BTC-USD/ticker'], ['https://www.bitstamp.net/api/ticker'], ['https://api.bitfinex.com/v1/ticker/BTCUSD'], ['https://api.gemini.com/v1/pubticker/btcusd'], ['https://api.kraken.com/0/public/Ticker?pair=XXBTZUSD', 'result.XXBTZUSD.b', 'result.XXBTZUSD.a', 0], ['https://api.lakebtc.com/api_v2/ticker/', 'btcusd.bid', 'btcusd.ask'], ['https://spotusd-data.btcc.com/data/pro/ticker?symbol=BTCUSD', "ticker.BidPrice", "ticker.AskPrice"], ['https://api.itbit.com/v1/markets/XBTUSD/ticker']]
+let unparsedURLs = [['https://cex.io/api/ticker/BTC/USD'], ['https://api.gdax.com/products/BTC-USD/ticker'], ['https://www.bitstamp.net/api/ticker'], ['https://api.bitfinex.com/v1/ticker/BTCUSD'], ['https://api.gemini.com/v1/pubticker/btcusd'], ['https://api.kraken.com/0/public/Ticker?pair=XXBTZUSD', 'result.XXBTZUSD.b', 'result.XXBTZUSD.a', 0], ['https://api.lakebtc.com/api_v2/ticker/', 'btcusd.bid', 'btcusd.ask'], ['https://spotusd-data.btcc.com/data/pro/ticker?symbol=BTCUSD', 'ticker.BidPrice', 'ticker.AskPrice'], ['https://api.itbit.com/v1/markets/XBTUSD/ticker'], ['https://api.exmo.com/v1/ticker/', 'BTC_USD.buy_price', 'BTC_USD.sell_price']]
 
 module.exports = {
 	getBitcoinPrices: (req, res) => {
         let promises = [];
+       
+        let timeout = req.query.timeout;
+        if(timeout) {
+            console.log(timeout);
+            timeout = parseInt(req.query.timeout);
+        }
         
         unparsedURLs.map((item) => {
             let URL = url.parse(item[0])
-            let promise = getExchangePrice(URL, item[1], item[2], item[3]);
+            let promise = getExchangePrice(URL, item[1], item[2], item[3], timeout);
             promises.push(promise);
         });
             
@@ -31,18 +35,16 @@ module.exports = {
             exchangeAsks.bitfinex = values[3].ask;
             exchangeBids.gemini = values[4].bid;
             exchangeAsks.gemini = values[4].ask;
-
             exchangeBids.kraken = values[5].bid;
             exchangeAsks.kraken = values[5].ask;
-
             exchangeBids.lakebtc = values[6].bid;
             exchangeAsks.lakebtc = values[6].ask;
-
             exchangeBids.btcc = values[7].bid;
             exchangeAsks.btcc = values[7].ask;
-
             exchangeBids.itbit = values[8].bid;
             exchangeAsks.itbit = values[8].ask;
+            exchangeBids.exmo = values[9].bid;
+            exchangeAsks.exmo = values[9].ask;
 
             let statInfo = resolveInformation(exchangeBids, exchangeAsks);
 
@@ -124,7 +126,7 @@ function resolveInformation(bids, asks) {
     return returnInformation;
 }
 
-function getExchangePrice(url, pathToBid, pathToAsk, position) {
+function getExchangePrice(url, pathToBid, pathToAsk, position, timeout) {
     let promise = new Promise(
     function(resolve, reject) {
             
@@ -136,17 +138,32 @@ function getExchangePrice(url, pathToBid, pathToAsk, position) {
             }
         };
 
-        https.get(option, (res) => {
+        let getRequest = https.get(option, (res) => {
+            let fulldata;
             res.on('data', (d) => {
+                if(fulldata) {
+                    fulldata += d;
+                } else {
+                    fulldata = d;
+                }
+            });
+            res.on('end', () => {
                 console.log(url);
-                bitcoinJSONData = JSON.parse(d)
+
+                try {
+                    bitcoinJSONData = JSON.parse(fulldata)
+                } catch (error) {
+                    returnedData.bid = "parsing error";
+                    returnedData.ask = "parsing error";
+                }
+
                 let returnedData = {};
                 if(pathToBid == null && pathToAsk == null) {
                     if(!bitcoinJSONData.bid) {
-                        returnedData.bid = "error";
+                        returnedData.bid = "bid find error (API probably returned error)";
                     }
                     if(!bitcoinJSONData.ask) {
-                        returnedData.ask = "error";
+                        returnedData.ask = "ask find error (API probably returned error)";
                     }
                 
                     returnedData.bid = parseFloat(bitcoinJSONData.bid);
@@ -178,8 +195,8 @@ function getExchangePrice(url, pathToBid, pathToAsk, position) {
                     });
 
                     if(error) {
-                        returnedData.bid = "error";
-                        returnedData.ask = "error";
+                        returnedData.bid = "bid find error (API probably returned error)";
+                        returnedData.ask = "ask find error (API probably returned error)";
                     } else {
                         if(position) {
                             returnedData.bid = parseFloat(bidPrice[position]);
@@ -193,12 +210,16 @@ function getExchangePrice(url, pathToBid, pathToAsk, position) {
                 console.log(returnedData);
                 resolve(returnedData);
             });
-        }).setTimeout(2000, () => {
-            let returnedData = {};
-            returnedData.bid = "request timed out";
-            returnedData.ask = "request timed out";
-            resolve(returnedData);
         });
+
+        if(timeout) {
+            getRequest.setTimeout(timeout, () => {
+                let returnedData = {};
+                returnedData.bid = "request timed out";
+                returnedData.ask = "request timed out";
+                resolve(returnedData);
+            });
+        }
     });
     return promise;
 }
