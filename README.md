@@ -40,7 +40,7 @@ https://production.turbo360-vector.com/cryptocurrency-tracker-vector-caqpsd/getB
 |---------|----------|-----------------------------------------------------------------|
 | timeout | no       | any number < 0 (milliseconds to timeout requests to an exchange)|
 
-Note: Most exchanges will reply within 2500 milliseconds, some like lakebtc are may take longer
+Note: Most exchanges will reply within 2500 milliseconds, some like lakebtc may take longer
 
 ### List of Exchanges
 1. Cex.io
