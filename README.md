@@ -40,7 +40,7 @@ https://production.turbo360-vector.com/cryptocurrency-tracker-vector-caqpsd/getB
 |---------|----------|-----------------------------------------------------------------|
 | timeout | no       | any number < 0 (milliseconds to timeout requests to an exchange)|
 
-Note: Most exchanges will reply within 2500 milliseconds, some like lakebtc may take longer
+Note: Most exchanges will reply within 2500 milliseconds, some like lakebtc (removed for now) may take longer
 
 ### List of Exchanges
 1. Cex.io
@@ -49,7 +49,7 @@ Note: Most exchanges will reply within 2500 milliseconds, some like lakebtc may 
 4. bitfinex.com
 5. gemini.com
 6. kraken.com
-7. lakebtc.com
+7. lakebtc.com - *NOTE* Removed for now due to slow response times
 8. btcc.com
 9. itbit.com
 10. exmo.com
