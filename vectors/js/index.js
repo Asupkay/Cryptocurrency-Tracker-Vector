@@ -214,6 +214,8 @@ function getExchangePrice(url, pathToBid, pathToAsk, position, timeout) {
                 }
                 resolve(returnedData);
             });
+        }).on('error', (e) => {
+            console.log(e);
         });
 
         if(timeout) {
