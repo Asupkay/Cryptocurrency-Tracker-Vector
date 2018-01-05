@@ -1,7 +1,7 @@
 const https = require("https");
 const url = require('url');
 
-let unparsedURLs = [['https://cex.io/api/ticker/BTC/USD'], ['https://api.gdax.com/products/BTC-USD/ticker'], ['https://www.bitstamp.net/api/ticker'], ['https://api.bitfinex.com/v1/ticker/BTCUSD'], ['https://api.gemini.com/v1/pubticker/btcusd'], ['https://api.kraken.com/0/public/Ticker?pair=XXBTZUSD', 'result.XXBTZUSD.b', 'result.XXBTZUSD.a', 0], ['https://api.lakebtc.com/api_v2/ticker/', 'btcusd.bid', 'btcusd.ask'], ['https://spotusd-data.btcc.com/data/pro/ticker?symbol=BTCUSD', 'ticker.BidPrice', 'ticker.AskPrice'], ['https://api.itbit.com/v1/markets/XBTUSD/ticker'], ['https://api.exmo.com/v1/ticker/', 'BTC_USD.buy_price', 'BTC_USD.sell_price']]
+let unparsedURLs = [['https://cex.io/api/ticker/BTC/USD'], ['https://api.gdax.com/products/BTC-USD/ticker'], ['https://www.bitstamp.net/api/ticker'], ['https://api.bitfinex.com/v1/ticker/BTCUSD'], ['https://api.gemini.com/v1/pubticker/btcusd'], ['https://api.kraken.com/0/public/Ticker?pair=XXBTZUSD', 'result.XXBTZUSD.b', 'result.XXBTZUSD.a', 0], /*['https://api.lakebtc.com/api_v2/ticker/', 'btcusd.bid', 'btcusd.ask'],*/ ['https://spotusd-data.btcc.com/data/pro/ticker?symbol=BTCUSD', 'ticker.BidPrice', 'ticker.AskPrice'], ['https://api.itbit.com/v1/markets/XBTUSD/ticker'], ['https://api.exmo.com/v1/ticker/', 'BTC_USD.buy_price', 'BTC_USD.sell_price']]
 
 module.exports = {
 	getBitcoinPrices: (req, res) => {
@@ -43,17 +43,16 @@ module.exports = {
             exchangeAsks.gemini = values[4].ask;
             exchangeBids.kraken = values[5].bid;
             exchangeAsks.kraken = values[5].ask;
-            exchangeBids.lakebtc = values[6].bid;
-            exchangeAsks.lakebtc = values[6].ask;
-            exchangeBids.btcc = values[7].bid;
-            exchangeAsks.btcc = values[7].ask;
-            exchangeBids.itbit = values[8].bid;
-            exchangeAsks.itbit = values[8].ask;
-            exchangeBids.exmo = values[9].bid;
-            exchangeAsks.exmo = values[9].ask;
+            //exchangeBids.lakebtc = values[6].bid;
+            //exchangeAsks.lakebtc = values[6].ask;
+            exchangeBids.btcc = values[6].bid;
+            exchangeAsks.btcc = values[6].ask;
+            exchangeBids.itbit = values[7].bid;
+            exchangeAsks.itbit = values[7].ask;
+            exchangeBids.exmo = values[8].bid;
+            exchangeAsks.exmo = values[8].ask;
 
             let statInfo = resolveInformation(exchangeBids, exchangeAsks);
-
             res.status(200).json({
                 confirmation: 'success',
                 time: time,
@@ -214,8 +213,13 @@ function getExchangePrice(url, pathToBid, pathToAsk, position, timeout) {
                 }
                 resolve(returnedData);
             });
-        }).on('error', (e) => {
-            console.log(e);
+        });
+
+        getRequest.on('error', (e) => {
+            let returnedData = {};
+            returnedData.bid = "request timed out";
+            returnedData.ask = "request timed out";
+            resolve(returnedData);
         });
 
         if(timeout) {
