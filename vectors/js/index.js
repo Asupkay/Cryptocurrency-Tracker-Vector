@@ -73,8 +73,12 @@ module.exports = {
                 error: error.message
             });
         });
-	}
-
+	},
+    getEthereumPrices: (req, res) => {
+        res.status(200).json({
+            confirmation: 'success'
+        });
+    }
 }
 
 function resolveInformation(bids, asks) {
