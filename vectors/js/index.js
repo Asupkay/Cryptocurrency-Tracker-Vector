@@ -76,7 +76,8 @@ module.exports = {
 	},
     getEthereumPrices: (req, res) => {
         res.status(200).json({
-            confirmation: 'success'
+            confirmation: 'success',
+            bitcoinPrice: 't'
         });
     }
 }
@@ -92,8 +93,6 @@ function resolveInformation(bids, asks) {
 
     let averageBid = 0;
     let averageAsk = 0;
-
-   
 
     for(let key in bids) {
         cBid = bids[key];
