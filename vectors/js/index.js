@@ -75,10 +75,25 @@ module.exports = {
         });
 	},
     getEthereumPrices: (req, res) => {
-        res.status(200).json({
-            confirmation: 'success',
-            bitcoinPrice: 't'
-        });
+        https.get('https://api.coinmarketcap.com/v1/ticker/bitcoin/', (rest) => {
+            let fulldata;
+            rest.on('data', (d) => {
+                if(fulldata) {
+                    fulldata += d;
+                } else {
+                    fulldata = d;
+                }
+            });
+            rest.on('end', () => {
+                let bitcoinPrice = parseInt(JSON.parse(fulldata)[0].price_usd);
+
+                res.status(200).json({
+                    confirmation: 'success',
+                    bitcoinPrice: bitcoinPrice
+                });
+            });
+        });  
+
     }
 }
 
