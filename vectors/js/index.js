@@ -75,6 +75,17 @@ module.exports = {
         });
 	},
     getEthereumPrices: (req, res) => {
+        let bitcoinaverage = getBitcoinOverallAverage().then((value) => {
+            console.log(value);
+            res.status(200).json({
+                bitcoinprice: value
+            });
+        });
+    }
+}
+
+function getBitcoinOverallAverage() {
+    let promise = new Promise((resolve, reject) => {
         https.get('https://api.coinmarketcap.com/v1/ticker/bitcoin/', (rest) => {
             let fulldata;
             rest.on('data', (d) => {
@@ -86,15 +97,11 @@ module.exports = {
             });
             rest.on('end', () => {
                 let bitcoinPrice = parseInt(JSON.parse(fulldata)[0].price_usd);
-
-                res.status(200).json({
-                    confirmation: 'success',
-                    bitcoinPrice: bitcoinPrice
-                });
+                resolve(bitcoinPrice);
             });
-        });  
-
-    }
+        }); 
+    });
+    return promise;
 }
 
 function resolveInformation(bids, asks) {
