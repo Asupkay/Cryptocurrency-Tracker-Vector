@@ -27,7 +27,7 @@ module.exports = {
             
         let time = new Date();
   
-        Promise.all(promises).then(values => {
+        Promise.all(promises).then((values) => {
             let exchangeBids = {};
             let exchangeAsks = {};
 
@@ -75,12 +75,7 @@ module.exports = {
         });
 	},
     getEthereumPrices: (req, res) => {
-        let bitcoinaverage = getBitcoinOverallAverage().then((value) => {
-            console.log(value);
-            res.status(200).json({
-                bitcoinprice: value
-            });
-        });
+        //TODO: Change this to a function of the bitcoin one 
     }
 }
 
@@ -103,6 +98,12 @@ function getBitcoinOverallAverage() {
     });
     return promise;
 }
+
+/*
+function getBidAndAsk() {
+
+}
+*/
 
 function resolveInformation(bids, asks) {
     let amountOfExchanges = 0;
