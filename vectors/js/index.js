@@ -1,78 +1,11 @@
 const https = require("https");
 const url = require('url');
 
-let unparsedURLs = [['https://cex.io/api/ticker/BTC/USD'], ['https://api.gdax.com/products/BTC-USD/ticker'], ['https://www.bitstamp.net/api/ticker'], ['https://api.bitfinex.com/v1/ticker/BTCUSD'], ['https://api.gemini.com/v1/pubticker/btcusd'], ['https://api.kraken.com/0/public/Ticker?pair=XXBTZUSD', 'result.XXBTZUSD.b', 'result.XXBTZUSD.a', 0], /*['https://api.lakebtc.com/api_v2/ticker/', 'btcusd.bid', 'btcusd.ask'],*/ ['https://spotusd-data.btcc.com/data/pro/ticker?symbol=BTCUSD', 'ticker.BidPrice', 'ticker.AskPrice'], ['https://api.itbit.com/v1/markets/XBTUSD/ticker'], ['https://api.exmo.com/v1/ticker/', 'BTC_USD.buy_price', 'BTC_USD.sell_price']]
+let unparsedURLs = [['cex', 'https://cex.io/api/ticker/BTC/USD'], ['gdax', 'https://api.gdax.com/products/BTC-USD/ticker'], ['bitstamp', 'https://www.bitstamp.net/api/ticker'], ['bitfinex', 'https://api.bitfinex.com/v1/ticker/BTCUSD'], ['gemini', 'https://api.gemini.com/v1/pubticker/btcusd'], ['kraken', 'https://api.kraken.com/0/public/Ticker?pair=XXBTZUSD', 'result.XXBTZUSD.b', 'result.XXBTZUSD.a', 0], /*['lakebtc', 'https://api.lakebtc.com/api_v2/ticker/', 'btcusd.bid', 'btcusd.ask'],*/ ['btcc', 'https://spotusd-data.btcc.com/data/pro/ticker?symbol=BTCUSD', 'ticker.BidPrice', 'ticker.AskPrice'], ['itbit', 'https://api.itbit.com/v1/markets/XBTUSD/ticker'], ['exmo', 'https://api.exmo.com/v1/ticker/', 'BTC_USD.buy_price', 'BTC_USD.sell_price']]
 
 module.exports = {
 	getBitcoinPrices: (req, res) => {
-        let promises = [];
-       
-        let timeout = req.query.timeout;
-        if(timeout) {
-            timeout = parseInt(req.query.timeout);
-            if(timeout <= 0) {
-                res.status(500).json({
-                    confirmation: 'failure',
-                    message: 'Timeout must be greater than 0'
-                });
-                return;
-            }   
-        }
-        
-        unparsedURLs.map((item) => {
-            let URL = url.parse(item[0])
-            let promise = getExchangePrice(URL, item[1], item[2], item[3], timeout);
-            promises.push(promise);
-        });
-            
-        let time = new Date();
-  
-        Promise.all(promises).then((values) => {
-            let exchangeBids = {};
-            let exchangeAsks = {};
-
-            exchangeBids.cex = values[0].bid;
-            exchangeAsks.cex = values[0].ask;
-            exchangeBids.gdax = values[1].bid;
-            exchangeAsks.gdax = values[1].ask;
-            exchangeBids.bitstamp = values[2].bid;
-            exchangeAsks.bitstamp = values[2].ask;
-            exchangeBids.bitfinex = values[3].bid;
-            exchangeAsks.bitfinex = values[3].ask;
-            exchangeBids.gemini = values[4].bid;
-            exchangeAsks.gemini = values[4].ask;
-            exchangeBids.kraken = values[5].bid;
-            exchangeAsks.kraken = values[5].ask;
-            //exchangeBids.lakebtc = values[6].bid;
-            //exchangeAsks.lakebtc = values[6].ask;
-            exchangeBids.btcc = values[6].bid;
-            exchangeAsks.btcc = values[6].ask;
-            exchangeBids.itbit = values[7].bid;
-            exchangeAsks.itbit = values[7].ask;
-            exchangeBids.exmo = values[8].bid;
-            exchangeAsks.exmo = values[8].ask;
-
-            let statInfo = resolveInformation(exchangeBids, exchangeAsks);
-            res.status(200).json({
-                confirmation: 'success',
-                time: time,
-                bids: {
-                    average: statInfo.averageBid,
-                    highestExchange: statInfo.highestBidExchange,
-                    exchanges: exchangeBids
-                },
-                asks: {
-                    average: statInfo.averageAsk,
-                    lowestExchange: statInfo.lowestAskExchange,
-                    exchanges: exchangeAsks
-                }
-            });
-        }).catch((error) => {
-            res.status(500).json({
-                confirmation: 'failure',
-                error: error.message
-            });
-        });
+        getBidAndAsk(req, res, unparsedURLs); 
 	},
     getEthereumPrices: (req, res) => {
         //TODO: Change this to a function of the bitcoin one 
@@ -99,11 +32,89 @@ function getBitcoinOverallAverage() {
     return promise;
 }
 
-/*
-function getBidAndAsk() {
+function getBidAndAsk(req, res, unparsedURLs) {
+    let promises = [];
+    let names = [];
+   
+    let timeout = req.query.timeout;
+    if(timeout) {
+        timeout = parseInt(req.query.timeout);
+        if(timeout <= 0) {
+            res.status(500).json({
+                confirmation: 'failure',
+                message: 'Timeout must be greater than 0'
+            });
+            return;
+        }   
+    }
+    
+    unparsedURLs.map((item) => {
+        names.push(item[0]);
+        let URL = url.parse(item[1])
+        let promise = getExchangePrice(URL, item[2], item[3], item[4], timeout);
+        promises.push(promise);
+    });
+        
+    let time = new Date();
 
+    Promise.all(promises).then((values) => {
+        let exchangeBids = {};
+        let exchangeAsks = {};
+
+        console.log(names);
+        console.log(values);
+        for(let i = 0; i < names.length; i++) {
+            console.log(names[i]);
+            exchangeBids[names[i]] = values[i].bid;
+            exchangeAsks[names[i]] = values[i].ask;
+        }
+
+        /*
+        exchangeBids.cex = values[0].bid;
+        exchangeAsks.cex = values[0].ask;
+        exchangeBids.gdax = values[1].bid;
+        exchangeAsks.gdax = values[1].ask;
+        exchangeBids.bitstamp = values[2].bid;
+        exchangeAsks.bitstamp = values[2].ask;
+        exchangeBids.bitfinex = values[3].bid;
+        exchangeAsks.bitfinex = values[3].ask;
+        exchangeBids.gemini = values[4].bid;
+        exchangeAsks.gemini = values[4].ask;
+        exchangeBids.kraken = values[5].bid;
+        exchangeAsks.kraken = values[5].ask;
+        //exchangeBids.lakebtc = values[6].bid;
+        //exchangeAsks.lakebtc = values[6].ask;
+        exchangeBids.btcc = values[6].bid;
+        exchangeAsks.btcc = values[6].ask;
+        exchangeBids.itbit = values[7].bid;
+        exchangeAsks.itbit = values[7].ask;
+        exchangeBids.exmo = values[8].bid;
+        exchangeAsks.exmo = values[8].ask;
+        */
+
+        let statInfo = resolveInformation(exchangeBids, exchangeAsks);
+        res.status(200).json({
+            confirmation: 'success',
+            time: time,
+            bids: {
+                average: statInfo.averageBid,
+                highestExchange: statInfo.highestBidExchange,
+                exchanges: exchangeBids
+            },
+            asks: {
+                average: statInfo.averageAsk,
+                lowestExchange: statInfo.lowestAskExchange,
+                exchanges: exchangeAsks
+            }
+        });
+    }).catch((error) => {
+        res.status(500).json({
+            confirmation: 'failure',
+            error: error.message
+        });
+    });
 }
-*/
+
 
 function resolveInformation(bids, asks) {
     let amountOfExchanges = 0;
