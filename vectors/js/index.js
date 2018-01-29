@@ -3,6 +3,9 @@ const url = require('url');
 
 let unparsedURLs = [['cex', 'https://cex.io/api/ticker/BTC/USD'], ['gdax', 'https://api.gdax.com/products/BTC-USD/ticker'], ['bitstamp', 'https://www.bitstamp.net/api/ticker'], ['bitfinex', 'https://api.bitfinex.com/v1/ticker/BTCUSD'], ['gemini', 'https://api.gemini.com/v1/pubticker/btcusd'], ['kraken', 'https://api.kraken.com/0/public/Ticker?pair=XXBTZUSD', 'result.XXBTZUSD.b', 'result.XXBTZUSD.a', 0], /*['lakebtc', 'https://api.lakebtc.com/api_v2/ticker/', 'btcusd.bid', 'btcusd.ask'],*/ ['btcc', 'https://spotusd-data.btcc.com/data/pro/ticker?symbol=BTCUSD', 'ticker.BidPrice', 'ticker.AskPrice'], ['itbit', 'https://api.itbit.com/v1/markets/XBTUSD/ticker'], ['exmo', 'https://api.exmo.com/v1/ticker/', 'BTC_USD.buy_price', 'BTC_USD.sell_price']]
 
+//TODO: Add req query for the coin
+//TODO: Make ethereum have both usd and price in bitcoin
+
 module.exports = {
 	getBitcoinPrices: (req, res) => {
         getBidAndAsk(req, res, unparsedURLs); 
