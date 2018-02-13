@@ -47,6 +47,7 @@ function getBidAndAsk(req, res, unparsedURLs) {
                 confirmation: 'failure',
                 message: 'Timeout must be greater than 0'
             });
+            return;
         }   
     }
     
