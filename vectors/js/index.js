@@ -47,7 +47,6 @@ function getBidAndAsk(req, res, unparsedURLs) {
                 confirmation: 'failure',
                 message: 'Timeout must be greater than 0'
             });
-            return;
         }   
     }
     
@@ -64,36 +63,10 @@ function getBidAndAsk(req, res, unparsedURLs) {
         let exchangeBids = {};
         let exchangeAsks = {};
 
-        console.log(names);
-        console.log(values);
         for(let i = 0; i < names.length; i++) {
-            console.log(names[i]);
             exchangeBids[names[i]] = values[i].bid;
             exchangeAsks[names[i]] = values[i].ask;
         }
-
-        /*
-        exchangeBids.cex = values[0].bid;
-        exchangeAsks.cex = values[0].ask;
-        exchangeBids.gdax = values[1].bid;
-        exchangeAsks.gdax = values[1].ask;
-        exchangeBids.bitstamp = values[2].bid;
-        exchangeAsks.bitstamp = values[2].ask;
-        exchangeBids.bitfinex = values[3].bid;
-        exchangeAsks.bitfinex = values[3].ask;
-        exchangeBids.gemini = values[4].bid;
-        exchangeAsks.gemini = values[4].ask;
-        exchangeBids.kraken = values[5].bid;
-        exchangeAsks.kraken = values[5].ask;
-        //exchangeBids.lakebtc = values[6].bid;
-        //exchangeAsks.lakebtc = values[6].ask;
-        exchangeBids.btcc = values[6].bid;
-        exchangeAsks.btcc = values[6].ask;
-        exchangeBids.itbit = values[7].bid;
-        exchangeAsks.itbit = values[7].ask;
-        exchangeBids.exmo = values[8].bid;
-        exchangeAsks.exmo = values[8].ask;
-        */
 
         let statInfo = resolveInformation(exchangeBids, exchangeAsks);
         res.status(200).json({
