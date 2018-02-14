@@ -15,6 +15,7 @@ module.exports = {
     }
 }
 
+//Gets bitcoins overall price from coin market cap
 function getBitcoinOverallAverage() {
     let promise = new Promise((resolve, reject) => {
         https.get('https://api.coinmarketcap.com/v1/ticker/bitcoin/', (rest) => {
@@ -35,6 +36,7 @@ function getBitcoinOverallAverage() {
     return promise;
 }
 
+//Get the bid and ask price from a list of unparsedURLS
 function getBidAndAsk(req, res, unparsedURLs) {
     let promises = [];
     let names = [];
@@ -93,6 +95,7 @@ function getBidAndAsk(req, res, unparsedURLs) {
 }
 
 
+//Get the average and the lowest and highest bid ask and return that
 function resolveInformation(bids, asks) {
     let amountOfExchanges = 0;
 
@@ -145,6 +148,7 @@ function resolveInformation(bids, asks) {
     return returnInformation;
 }
 
+//Get the bid and ask price from the exchange
 function getExchangePrice(url, pathToBid, pathToAsk, position, timeout) {
     let promise = new Promise(
     function(resolve, reject) {
