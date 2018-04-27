@@ -9,19 +9,19 @@
     "postinstall": "npm run build"
   },
   "dependencies": {
-    "turbo360": "latest"
+    "turbo360": "^1.6.19"
   },
   "devDependencies": {
-    "express": "latest",
+    "express": "^4.16.3",
     "gulp": "latest",
-    "gulp-autoprefixer": "latest",
+    "gulp-autoprefixer": "^5.0.0",
     "gulp-concat": "latest",
-    "gulp-less": "latest",
+    "gulp-less": "^4.0.0",
     "gulp-minify-css": "latest",
-    "gulp-sourcemaps": "latest",
     "gulp-rename": "latest",
+    "gulp-sourcemaps": "^2.6.4",
     "gulp-uglify": "latest",
-    "nodemon": "latest",
+    "nodemon": "^1.17.3",
     "rimraf": "latest"
   },
   "deploy": [
