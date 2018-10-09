@@ -9,7 +9,7 @@
     "postinstall": "npm run build"
   },
   "dependencies": {
-    "turbo360": "^1.6.32"
+    "turbo360": "^1.6.35"
   },
   "devDependencies": {
     "express": "^4.16.3",
@@ -21,7 +21,7 @@
     "gulp-rename": "^1.4.0",
     "gulp-sourcemaps": "^2.6.4",
     "gulp-uglify": "^3.0.1",
-    "nodemon": "^1.18.3",
+    "nodemon": "^1.18.4",
     "rimraf": "latest"
   },
   "deploy": [
